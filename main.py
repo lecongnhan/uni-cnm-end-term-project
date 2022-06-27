@@ -5,7 +5,7 @@ import os
 
 
 from dotenv import load_dotenv
-from binance import MyBinance
+from my_binance import MyBinance
 
 KEY_BINANCE_API_KEY = 'BINANCE_API_KEY'
 KEY_BINANCE_API_SECRET = 'BINANCE_API_SECRET'
@@ -18,7 +18,6 @@ def main():
     api_key = os.getenv(KEY_BINANCE_API_KEY)
     api_secret = os.getenv(KEY_BINANCE_API_SECRET)
     binance = MyBinance(api_key, api_secret)
-
     print(binance)
 
 if __name__ == '__main__':
