@@ -46,11 +46,11 @@ async def main():
 
     # subscribes to the symbols
     await binance.subcribe_symbol("HNTUSDT")
-    await binance.subcribe_symbol("ZILTRY")
+
+    # TODO: predict the price
 
     await binance.update()
-    
-    # TODO: predict the price
+
 
 if __name__ == '__main__':
     load_dotenv()

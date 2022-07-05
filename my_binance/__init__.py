@@ -12,10 +12,21 @@ from binance.streams import BinanceSocketManager
 from my_binance.k_line import KLine
 from .symbols import SYMBOLS
 
-def handle_socket_message(msg):
-    print("ackj")
-    print(f"message type: {msg['e']}")
-    print(msg)
+
+class _Ws_Subcribable:
+    def __init__(self, ws, callback:callable=None):
+        self._ws = ws
+        self._callback = callback
+
+    def callback(self, args):
+        print(args)
+
+        if self._callback:
+            self._callback(args)
+
+    @property
+    def ws(self):
+        return self._ws
 
 class MyBinance:
     """
@@ -34,7 +45,13 @@ class MyBinance:
 
         self._client = Client(self._api_key, self._api_secret)
         self._binance_socket_manager = BinanceSocketManager(self._client)
-        self._websockets = []
+
+        """
+        Dictionary of websockets
+        Key: str
+        Value: _WS_Subcribable
+        """
+        self._websockets = {}
 
     def get_k_lines(self, symbol, interval:str=Client.KLINE_INTERVAL_1MINUTE, limit=1000):
         """
@@ -62,7 +79,15 @@ class MyBinance:
 
         return list(map(KLine.from_list, res))
 
-    async def subcribe_symbol(self, symbol:str):
+    def handle_socket_message(self, msg):
+        logging.debug("Received new message from socket: %s", msg)
+        symbol = msg['s']
+
+        if symbol in self._websockets:
+            ws_subcriptable = self._websockets[symbol]
+            ws_subcriptable.callback(msg)
+
+    async def subcribe_symbol(self, symbol:str, callback:callable=None):
         """
         Subscribe to a symbol
 
@@ -78,15 +103,34 @@ class MyBinance:
 
         ws = self._binance_socket_manager.kline_socket(symbol, Client.KLINE_INTERVAL_1MINUTE)
         await ws.connect()
-        self._websockets.append(ws)
+        self._websockets[symbol] = _Ws_Subcribable(ws, callback)
+
+    def unsubcribe_symbol(self, symbol:str):
+        """
+        Unsubscribe from a symbol
+        Currently just remove its socket reference so it won't be listening anymore
+
+        :param symbol: Symbol to unsubscribe
+        """
+        logging.debug('unsubscribing from %s', symbol)
+
+        if not symbol:
+            raise ValueError('Symbol is required')
+
+        if symbol not in SYMBOLS:
+            raise ValueError(f'Symbol {symbol} is not supported')
+
+        if symbol in self._websockets:
+            del self._websockets[symbol]
     
     async def update(self):
+        """
+        Listens to all the websockets
+        """
         while True:
             # listens for all websockets in self._websockets
-            msgs = await asyncio.gather(*[ws.recv() for ws in self._websockets])
+            msgs = await asyncio.gather(*[self._websockets[ws].ws.recv() for ws in self._websockets])
             for msg in msgs:
-                handle_socket_message(msg)
-                
+                self.handle_socket_message(msg)
+
             await asyncio.sleep(1)
-
-
