@@ -64,5 +64,33 @@ class KLine:
         :param list_: list of values
         :return: KLine object
         """
-        return KLine(list_[0], list_[1], list_[2], list_[3], list_[4], list_[5], list_[6],
-            list_[7], list_[8], list_[9], list_[10], list_[11])
+        return KLine(
+            int(list_[0]), 
+            float(list_[1]), 
+            float(list_[2]),
+            float(list_[3]), 
+            float(list_[4]), 
+            float(list_[5]), 
+            int(list_[6]),
+            list_[7], 
+            int(list_[8]), 
+            list_[9], 
+            list_[10], 
+            list_[11]
+        )
+
+    @property
+    def close(self):
+        return self._close
+
+    @property
+    def open(self):
+        return self._open
+
+    @property
+    def volume(self):
+        return self._volume
+
+    @property
+    def n_trades(self):
+        return self._n_trades

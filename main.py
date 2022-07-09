@@ -8,6 +8,7 @@ import asyncio
 
 from dotenv import load_dotenv
 from my_binance import MyBinance
+from xgb import MyXgb
 
 KEY_BINANCE_API_KEY = 'BINANCE_API_KEY'
 KEY_BINANCE_API_SECRET = 'BINANCE_API_SECRET'
@@ -42,14 +43,19 @@ async def main():
     api_secret = os.getenv(KEY_BINANCE_API_SECRET)
     binance = MyBinance(api_key, api_secret)
     
-    # print(binance.get_k_lines('HNTUSDT'))
+    k_lines = binance.get_k_lines('HNTUSDT')
+    print([k_line.close for k_line in k_lines])
+    xgb = MyXgb()
+    xgb.train(k_lines[:900])
+    k_lines = xgb.predict(k_lines[900:950])
+    # print(k_lines)
 
     # subscribes to the symbols
-    await binance.subcribe_symbol("HNTUSDT")
+    # await binance.subcribe_symbol("HNTUSDT")
 
     # TODO: predict the price
 
-    await binance.update()
+    # await binance.update()
 
 
 if __name__ == '__main__':
