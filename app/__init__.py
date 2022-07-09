@@ -79,7 +79,17 @@ def symbols():
     # get all models saved in ./models
     symbols = [file_name.split("_")[1] for file_name in os.listdir("./models")]
     symbols = [file_name.split(".")[0] for file_name in symbols]
-    return json.dumps(symbols)
+
+    # counts each symbol
+    counts = {}
+    for symbol in symbols:
+        if symbol in counts:
+            counts[symbol] += 1
+        else:
+            counts[symbol] = 1
+
+    # returns array of symbols if count = 2
+    return json.dumps(list(filter(lambda x: counts[x] == 2, counts)))
 
 def set_my_xgb(xgb_):
     """

@@ -19,6 +19,21 @@
         <div id="graph"></div>
     </body>
     <script>
+        const userAction = async () => {
+            const symbol = document.getElementById('symbol').value;
+            const method = document.getElementById('method').value;
+            const type = document.getElementById('type').value;
+            document.getElementById('graph').innerHTML = "fetching..."
+
+            const response = await fetch('/graph?symbol=' + symbol
+                + '&method=' + method
+                + '&type=' + type
+            );
+
+            // replace the content of the div with the response of the server (a img tag)
+            document.getElementById('graph').innerHTML = await response.text();
+        }
+
         const getSymbols = async () => {
             const response = await fetch('/symbols');
             const data = await response.json();
@@ -29,22 +44,11 @@
                 option.text = symbol;
                 document.getElementById('symbol').appendChild(option);
             }
+            userAction();
+            
+            // fetch the graph every 10 seconds
+            // setInterval(userAction, 10000);
         };
         getSymbols();
-
-        const userAction = async (symbol) => {
-            // get method and type
-            const method = document.getElementById('method').value;
-            const type = document.getElementById('type').value;
-            document.getElementById('graph').innerHTML = "fetching...";
-
-            const response = await fetch('/graph?symbol=' + symbol
-                + '&method=' + method
-                + '&type=' + type
-            );
-
-            // replace the content of the div with the response of the server (a img tag)
-            document.getElementById('graph').innerHTML = await response.text();
-        }
     </script>
 </html>
