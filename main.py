@@ -60,18 +60,16 @@ async def main():
     my_xgb = MyXgb()
 
     # train first 10 symbols in SYMBOLS
-    for symbol in SYMBOLS[:10]:
+    for symbol in SYMBOLS[:20]:
         # checks if the model exists
         xgb_model = my_xgb._load_model(symbol)
         if xgb_model is None:
-            # loops 43 times (43000 k lines)
-            # for i in range(43):
             i = 1
-            #get now in unix time
+            # get now in unix time
             now = int(round(time.time()))
             k_lines = my_binance.get_k_lines(symbol, limit=1000, from_time=now - (43 - i + 1) * 60 * 1000)
             my_xgb.train(symbol, k_lines)
-            logging.info(f"Trained {symbol} ({i}/43)")
+            logging.info(f"Trained {symbol}")
 
     set_my_xgb(my_xgb)
     set_my_binance(my_binance)

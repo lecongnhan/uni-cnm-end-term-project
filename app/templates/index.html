@@ -1,0 +1,48 @@
+<html lang="en">
+    <body>
+        <label for="method">Method:</label>
+        <select id="method">
+            <option value="xgboost">XGBoost</option>
+        </select>
+
+        <label for="type">Type:</label>
+        <select id="type">
+            <option value="close">Close</option>
+        </select>
+
+        <!-- a select input to choose symbol, items are set by a script -->
+        <label for="symbol">Symbol:</label>
+        <select id="symbol" onchange="userAction(this.value)"></select>
+
+        <!-- grapth -->
+        <div id="graph"></div>
+    </body>
+    <script>
+        const getSymbols = async () => {
+            const response = await fetch('/symbols');
+            const data = await response.json();
+
+            for (const symbol of data) {
+                const option = document.createElement('option');
+                option.value = symbol;
+                option.text = symbol;
+                document.getElementById('symbol').appendChild(option);
+            }
+        };
+
+        getSymbols();
+
+        const userAction = async (symbol) => {
+            // get method and type
+            const method = document.getElementById('method').value;
+            const type = document.getElementById('type').value;
+            const response = await fetch('/graph?symbol=' + symbol
+                + '&method=' + method
+                + '&type=' + type
+            );
+
+            // replace the content of the div with the response of the server (a img tag)
+            document.getElementById('graph').innerHTML = await response.text();
+        }
+    </script>
+</html>
