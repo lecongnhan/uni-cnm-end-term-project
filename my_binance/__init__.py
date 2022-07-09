@@ -6,6 +6,7 @@ Binance constants: binance.client.Client
 
 import asyncio
 import logging
+import time
 
 from binance.client import Client
 from binance.streams import BinanceSocketManager
@@ -53,7 +54,7 @@ class MyBinance:
         """
         self._websockets = {}
 
-    def get_k_lines(self, symbol, interval:str=Client.KLINE_INTERVAL_1MINUTE, limit=1000):
+    def get_k_lines(self, symbol, interval:str=Client.KLINE_INTERVAL_1MINUTE, limit=1000, from_time=None):
         """
         Get the K Lines for a symbol
 
@@ -73,7 +74,11 @@ class MyBinance:
         if symbol not in SYMBOLS:
             raise ValueError(f'Symbol {symbol} is not supported')
 
-        res = self._client.get_historical_klines(symbol, interval,'1 day ago UTC', limit=limit)
+        if not from_time:
+            # get cur unix timestamp
+            from_time = int(round(time.time())) - limit * 60
+
+        res = self._client.get_historical_klines(symbol, interval, from_time * 1000, limit=limit)
         logging.debug('got %d K Lines for %s', len(res), symbol)
         logging.debug(res)
 

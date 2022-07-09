@@ -94,3 +94,7 @@ class KLine:
     @property
     def n_trades(self):
         return self._n_trades
+
+    @property
+    def close_time(self):
+        return self._close_time
