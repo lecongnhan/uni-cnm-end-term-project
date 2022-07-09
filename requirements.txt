@@ -1,4 +1,5 @@
-dotenv
+python-dotenv
 python-binance==1.0.16
-xgboost=1.6.1
-flask=2.1.2
+xgboost==1.6.1
+flask==2.1.2
+tensorflow==2.9.1

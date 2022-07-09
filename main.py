@@ -10,7 +10,8 @@ import time
 from dotenv import load_dotenv
 from my_binance import MyBinance, SYMBOLS
 from xgb import MyXgb
-from app import app, set_my_binance, set_my_xgb
+from app import app, set_my_binance, set_my_xgb, set_my_lstm
+from lstm import MyLstm
 
 KEY_BINANCE_API_KEY = 'BINANCE_API_KEY'
 KEY_BINANCE_API_SECRET = 'BINANCE_API_SECRET'
@@ -58,22 +59,31 @@ async def main():
     my_binance = MyBinance(api_key, api_secret)
 
     my_xgb = MyXgb()
+    my_lstm = MyLstm()
 
     # train first 10 symbols in SYMBOLS
-    for symbol in SYMBOLS[:20]:
-        # checks if the model exists
+    for symbol in SYMBOLS[:5]:
+        now = int(round(time.time()))
+        k_lines = my_binance.get_k_lines(symbol, limit=1000, from_time=now - 60 * 1000)
+        if k_lines is None or len(k_lines) <= 0:
+            continue
+
+        # checks if the xgb model exists
         xgb_model = my_xgb._load_model(symbol)
         if xgb_model is None:
-            i = 1
-            # get now in unix time
-            now = int(round(time.time()))
-            k_lines = my_binance.get_k_lines(symbol, limit=1000, from_time=now - (43 - i + 1) * 60 * 1000)
             my_xgb.train(symbol, k_lines)
-            logging.info(f"Trained {symbol}")
+            logging.info(f"Xgb trained {symbol}")
 
+        # checks if the lstm model exits
+        lstm_model = my_lstm.load_model(symbol)
+        if lstm_model is None:
+            my_lstm.train(symbol, k_lines)
+            logging.info(f"LSTM trained {symbol}")
+    
+    set_my_lstm(my_lstm)
     set_my_xgb(my_xgb)
     set_my_binance(my_binance)
-    app.run()
+    app.run(port=8080)
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@
         <label for="method">Method:</label>
         <select id="method">
             <option value="xgboost">XGBoost</option>
+            <option value="lstm">LSTM</option>
         </select>
 
         <label for="type">Type:</label>
@@ -29,13 +30,14 @@
                 document.getElementById('symbol').appendChild(option);
             }
         };
-
         getSymbols();
 
         const userAction = async (symbol) => {
             // get method and type
             const method = document.getElementById('method').value;
             const type = document.getElementById('type').value;
+            document.getElementById('graph').innerHTML = "fetching...";
+
             const response = await fetch('/graph?symbol=' + symbol
                 + '&method=' + method
                 + '&type=' + type

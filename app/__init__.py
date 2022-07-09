@@ -47,6 +47,8 @@ def graph():
     predicted = []
     if (method == "xgboost"):
         predicted = my_xgb.predict(symbol, k_lines)
+    if (method == "lstm"):
+        predicted = my_lstm.predict(symbol, k_lines)
 
     # draw grapth with k_lines and predicted
     # Generate the figure **without using pyplot**.
@@ -79,7 +81,6 @@ def symbols():
     symbols = [file_name.split(".")[0] for file_name in symbols]
     return json.dumps(symbols)
 
-
 def set_my_xgb(xgb_):
     """
     Sets the global variable my_xgb
@@ -99,3 +100,13 @@ def set_my_binance(binance_):
     """
     global my_binance
     my_binance = binance_
+
+def set_my_lstm(lstm_):
+    """
+    Sets the global variable my_lstm
+    
+    :param my_lstm: MyLstm
+    :return: None
+    """
+    global my_lstm
+    my_lstm = lstm_
